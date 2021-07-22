@@ -224,14 +224,14 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TH1F* hpim_pt = new TH1F("pim_pt", "pim_pt; pt [GeV/c];", 75, 0., 1.5);
     TH1F* hpim_pt_4pi = new TH1F("pim_pt_4pi", "pim_pt_4pi; pt [GeV/c];", 75, 0., 1.5);
 
-    TH1F* hp_T = new TH1F("p_T", "p_T;T [GeV];", 60, 0.6, 1.8);
-    TH1F* hp_T_4pi = new TH1F("p_T_4pi", "p_T_4pi;T [GeV];", 60, 0.6, 1.8);
-    TH1F* hd_T = new TH1F("d_T", "d_T;T [GeV];", 50, 1.6, 2.6);
-    TH1F* hd_T_4pi = new TH1F("d_T_4pi", "d_T_4pi;T [GeV];", 50, 1.6, 2.6);
-    TH1F* hpip_T = new TH1F("pip_T", "pip_T;T [GeV];", 50, 0, 1.);
-    TH1F* hpip_T_4pi = new TH1F("pip_T_4pi", "pip_T_4pi;T [GeV];", 50, 0, 1.);
-    TH1F* hpim_T = new TH1F("pim_T", "pim_T;T [GeV];", 50, 0, 1.);
-    TH1F* hpim_T_4pi = new TH1F("pim_T_4pi", "pim_T_4pi; T[GeV];", 50, 0, 1.);
+    TH1F* hp_T = new TH1F("p_T", "p_T;T [GeV];", 80, 0., 0.8);
+    TH1F* hp_T_4pi = new TH1F("p_T_4pi", "p_T_4pi;T [GeV];", 80, 0., 0.8);
+    TH1F* hd_T = new TH1F("d_T", "d_T;T [GeV];", 80, 0., 0.8);
+    TH1F* hd_T_4pi = new TH1F("d_T_4pi", "d_T_4pi;T [GeV];", 80, 0., 0.8);
+    TH1F* hpip_T = new TH1F("pip_T", "pip_T;T [GeV];", 70, 0, 0.7);
+    TH1F* hpip_T_4pi = new TH1F("pip_T_4pi", "pip_T_4pi;T [GeV];", 70, 0, 0.7);
+    TH1F* hpim_T = new TH1F("pim_T", "pim_T;T [GeV];", 100, 0, 1.);
+    TH1F* hpim_T_4pi = new TH1F("pim_T_4pi", "pim_T_4pi; T[GeV];", 100, 0, 1.);
     
     //TO DO
     //1D histograms in acceptance and in 4pi for:  
@@ -240,8 +240,6 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     //Pt (transverse momentum), DONE
     //y (rapidity) for p, d, pi-, pi+ DONE
     //thetaCM for p, d, pi-, pi+ NA RAZIE NIE ROBIC
-
-    //added d for 4pi
     
     //***************************************************************
     //********************************************
@@ -425,10 +423,10 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hp_theta->Fill(partH->getTheta());
 	      hp_y->Fill(partH->Rapidity());
 	      hp_pt->Fill(partH->Pt()/1000);
-	      hp_T->Fill(partH->T()/1000);
+	      hp_T->Fill((partH->T()-partH->M())/1000);
 
 	      //kinetic energy
-	      double Ekin=partH->T()-partH->M();
+	      // double Ekin=partH->T()-partH->M();
 	      
 	      
 	      //cout<<i<<" :::: "<<partH->Rapidity()<<endl;
@@ -442,9 +440,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hd_theta->Fill(partH->getTheta());
 	      hd_y->Fill(partH->Rapidity());
 	      hd_pt->Fill(partH->Pt()/1000);
-	      hd_T->Fill(partH->T()/1000);
+	      hd_T->Fill((partH->T()-partH->M())/1000);
 
-	      
 	      //cout<<i<<" :::: "<<partH->T()<<endl;
 	      //cout<<i<<" :::: "<<partH->Energy()<<endl;
 	      //cout<<i<<" :::: "<<partH->Pt()/1000<<endl;
@@ -459,7 +456,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hpim_theta->Fill(partH->getTheta());
 	      hpim_y->Fill(partH->Rapidity());
 	      hpim_pt->Fill(partH->Pt()/1000);
-	      hpim_T->Fill(partH->T()/1000);
+	      hpim_T->Fill((partH->T()-partH->M())/1000);
 	      
 	    }
 
@@ -471,7 +468,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hpip_theta->Fill(partH->getTheta());
 	      hpip_y->Fill(partH->Rapidity());
 	      hpip_pt->Fill(partH->Pt()/1000);
-	      hpip_T->Fill(partH->T()/1000);
+	      hpip_T->Fill((partH->T()-partH->M())/1000);
 	      
 	    }
 
@@ -514,7 +511,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	 hp_theta_4pi->Fill(p_LAB->Theta()*TMath::RadToDeg());
 	 hp_y_4pi->Fill(p_LAB->Rapidity());
 	 hp_pt_4pi->Fill(p_LAB->Pt()/1000);
-	 hp_T_4pi->Fill(p_LAB->T()/1000);
+	 hp_T_4pi->Fill((p_LAB->T()-p_LAB->M())/1000);
 	 
        }
 
@@ -527,7 +524,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	   hpim_theta_4pi->Fill(pim_LAB->Theta()*TMath::RadToDeg());
 	   hpim_y_4pi->Fill(pim_LAB->Rapidity());
 	   hpim_pt_4pi->Fill(pim_LAB->Pt()/1000);
-	   hpim_T_4pi->Fill(pim_LAB->T()/1000);
+	   hpim_T_4pi->Fill((pim_LAB->T()-pim_LAB->M())/1000);
 	   
 	   //kine->getVertex(lambdaVertex);
 	   //h2IIpions->Fill(kine->getTotalMomentum(),kine->getThetaDeg());
@@ -542,7 +539,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	 hpip_theta_4pi->Fill(pip_LAB->Theta()*TMath::RadToDeg());
 	 hpip_y_4pi->Fill(pip_LAB->Rapidity());
 	 hpip_pt_4pi->Fill(pip_LAB->Pt()/1000);
-	 hpip_T_4pi->Fill(pip_LAB->T()/1000);
+	 hpip_T_4pi->Fill((pip_LAB->T()-pip_LAB->M())/1000);
 
        }
 
@@ -555,7 +552,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	   hd_theta_4pi->Fill(d_LAB->Theta()*TMath::RadToDeg());
 	   hd_y_4pi->Fill(d_LAB->Rapidity());
 	   hd_pt_4pi->Fill(d_LAB->Pt()/1000);
-	   hd_T_4pi->Fill(d_LAB->T()/1000);
+	   hd_T_4pi->Fill((d_LAB->T()-d_LAB->M())/1000);
 	 }
 	    
 	    //if(kineID==14 && kine->getThetaDeg()<6.5)h2FDsimProtons->Fill(kine->getTotalMomentum(),kine->getThetaDeg());
