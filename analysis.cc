@@ -183,13 +183,15 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TH2F *hmomvsMass1=new TH2F("momvsMass1","momvsMass1; p*q [GeV]; mass2",1000,-1.4,1.4,1000,-1000000,10000000);
     TH1F* hmass= new TH1F("mass","mass",1000,-1000000,10000000);
     TH1F* htof = new TH1F("tof","tof",100,0,100);
-    TH1F* hvertReco_z = new TH1F("hvertReco_z","hvertReco_z",10000,-1200,500);
+    TH1F* hvertReco_z = new TH1F("hvertReco_z","hvertReco_z",10000,-1200, 500);
     TH1F* hvert_z = new TH1F("hvert_z","hvert_z",10000,-1200,500);
     TH1F* hvertReco_x = new TH1F("hvertReco_x", "hvertReco_x", 10000, -1200, 500);
     TH1F* hvert_x = new TH1F("hvert_x", "hvert_x", 10000, -1200, 500);
     TH1F* hvertReco_y = new TH1F("hvertReco_y", "hvertReco_y", 10000, -1200, 500);
     TH1F* hvert_y = new TH1F("hvert_y", "hvert_y", 10000, -1200, 500);
     TH2F* hvertReco_xy = new TH2F("hvertReco_xy", "hvertReco_xy;x;y", 1000, -50, 50, 1000, -50, 50);
+    TH2F* hvertReco_xz = new TH2F("hvertReco_xz", "hvertReco_xz;x;z", 1000, -50, 50, 1500, -100, 50);
+    TH2F* hvertReco_yz = new TH2F("hvertReco_yz", "hvertReco_yz;y;z", 1000, -50, 50, 1500, -100, 50);
     TH1F* htrMult = new TH1F("htrMult","htrMult",15,0,15);
 
  
@@ -230,13 +232,17 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 
     TH1F* hp_y = new TH1F("p_y", "p_y;y;", 100, 0, 1.);
     TH1F* hp_y_4pi = new TH1F("p_y_4pi", "p_y_4pi;y;", 100, -1., 2.);
+    TH1F* hp_y_4pi_crop = new TH1F("p_y_4pi_crop", "p_y_4pi_crop;y;", 100, 0, 1.);
     TH1F* hd_y = new TH1F("d_y", "d_y;y", 100, 0., 1.);
     TH1F* hd_y_4pi = new TH1F("d_y_4pi", "d_y_4pi;y;", 100, -1., 2.);
+    TH1F* hd_y_4pi_crop = new TH1F("d_y_4pi_crop", "d_y_4pi_crop;y;", 100, 0., 1.);
     TH1F* hpip_y = new TH1F("pip_y", "pip_y;y;", 100, 0., 2.);
     TH1F* hpip_y_4pi = new TH1F("pip_y_4pi", "pip_y_4pi;y;", 100, -2., 3.);
+    TH1F* hpip_y_4pi_crop = new TH1F("pip_y_4pi_crop", "pip_y_4pi_crop;y;", 100, 0., 2.);
     TH1F* hpim_y = new TH1F("pim_y", "pim_y;y;", 100, 0., 2.);
     TH1F* hpim_y_4pi = new TH1F("pim_y_4pi", "pim_y_4pi;y;", 100, -2., 3.);
-
+    TH1F* hpim_y_4pi_crop = new TH1F("pim_y_4pi_crop", "pim_y_4pi_crop;y;", 100, 0., 2.); 
+    
     TH1F* hp_pt = new TH1F("p_pt", "p_pt;pt [GeV/c];", 75, 0., 1.5);
     TH1F* hp_pt_4pi = new TH1F("p_pt_4pi", "p_pt_4pi;pt [GeV/c];", 75, 0, 1.5);
     TH1F* hd_pt = new TH1F("d_pt", "d_pt;pt [GeV/c];", 75, 0., 1.5);
@@ -448,6 +454,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	  //cout<<partH->getGeantPID()<<endl;
 	  if(partH->isFlagBit(kIsUsed) ){//wybiera dobrze zrekonstruowane trajektorie
 
+	    // cout<<"FlagBit: "<<hnum<<" "<<trigM2<<endl;
+
 	    double mom=partH->getMomentum();
 	    double beta=partH->getBeta();
 	    float q=partH->getCharge();
@@ -477,6 +485,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    hvertReco_y->Fill(eVertReco_y);
 	    hvert_y->Fill(eVert_y);
 	    hvertReco_xy->Fill(eVertReco_x, eVertReco_y);
+	    hvertReco_xz->Fill(eVertReco_x, eVertReco_z);
+	    hvertReco_yz->Fill(eVertReco_y, eVertReco_z);
 	    
 	    hBetavsMom->Fill(mom*q/1000,beta);
 	    hmass->Fill(mass);
@@ -486,6 +496,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    
 
 	    if(eVertReco_z>-500){
+
+	      //cout<<"Vertex: "<<hnum<<" "<<trigM2<<endl;
 
 
 	    if(partH->getCharge()!=0)charTr++; ;  
@@ -596,6 +608,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	 hp_ThetavsMom_4pi->Fill(p_LAB->P()/1000,p_LAB->Theta()*TMath::RadToDeg());
 	 hp_theta_4pi->Fill(p_LAB->Theta()*TMath::RadToDeg());
 	 hp_y_4pi->Fill(p_LAB->Rapidity());
+	 hp_y_4pi_crop->Fill(p_LAB->Rapidity());
 	 hp_pt_4pi->Fill(p_LAB->Pt()/1000);
 	 hp_T_4pi->Fill((p_LAB->T()-p_LAB->M())/1000);
 	 hp_p_4pi->Fill(p_LAB->P()/1000);
@@ -610,6 +623,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	   hpim_ThetavsMom_4pi->Fill(pim_LAB->P()/1000,pim_LAB->Theta()*TMath::RadToDeg());
 	   hpim_theta_4pi->Fill(pim_LAB->Theta()*TMath::RadToDeg());
 	   hpim_y_4pi->Fill(pim_LAB->Rapidity());
+	   hpim_y_4pi_crop->Fill(pim_LAB->Rapidity());
 	   hpim_pt_4pi->Fill(pim_LAB->Pt()/1000);
 	   hpim_T_4pi->Fill((pim_LAB->T()-pim_LAB->M())/1000);
 	   hpim_p_4pi->Fill(pim_LAB->P()/1000);
@@ -626,6 +640,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	 hpip_ThetavsMom_4pi->Fill(pip_LAB->P()/1000,pip_LAB->Theta()*TMath::RadToDeg());
 	 hpip_theta_4pi->Fill(pip_LAB->Theta()*TMath::RadToDeg());
 	 hpip_y_4pi->Fill(pip_LAB->Rapidity());
+	 hpip_y_4pi_crop->Fill(pip_LAB->Rapidity());
 	 hpip_pt_4pi->Fill(pip_LAB->Pt()/1000);
 	 hpip_T_4pi->Fill((pip_LAB->T()-pip_LAB->M())/1000);
 	 hpip_p_4pi->Fill(pip_LAB->P()/1000);
@@ -640,6 +655,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	   hd_ThetavsMom_4pi->Fill(d_LAB->P()/1000, d_LAB->Theta()*TMath::RadToDeg());
 	   hd_theta_4pi->Fill(d_LAB->Theta()*TMath::RadToDeg());
 	   hd_y_4pi->Fill(d_LAB->Rapidity());
+	   hd_y_4pi_crop->Fill(d_LAB->Rapidity());
 	   hd_pt_4pi->Fill(d_LAB->Pt()/1000);
 	   hd_T_4pi->Fill((d_LAB->T()-d_LAB->M())/1000);
 	   hd_p_4pi->Fill(d_LAB->P()/1000);
@@ -667,6 +683,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     hvertReco_y->Write();
     hvert_y->Write();
     hvertReco_xy->Write();
+    hvertReco_xz->Write();
+    hvertReco_yz->Write();
     
 
 
@@ -710,6 +728,11 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     hd_y_4pi->Write();
     hpip_y_4pi->Write();
     hpim_y_4pi->Write();
+
+    hp_y_4pi_crop->Write();
+    hd_y_4pi_crop->Write();
+    hpip_y_4pi_crop->Write();
+    hpim_y_4pi_crop->Write();
 
     hp_pt->Write();
     hd_pt->Write();
