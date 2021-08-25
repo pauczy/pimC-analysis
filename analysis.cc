@@ -79,7 +79,7 @@ Int_t   nentries;
       if(particleParent!=0)
 	parentID=particleParent->getID();
       return parentID;
-      
+
       //return particle->getGeneratorInfo1();
     }
 
@@ -91,8 +91,8 @@ Int_t   nentries;
 
       double dphi=particle->getDeltaPhi();
       double dtheta=particle->getDeltaTheta();
-      
-          
+
+
       if(particle->isFlagBit(kIsUsed))
 	{
 	  if(mquality==-1 || mquality>5)
@@ -106,8 +106,29 @@ Int_t   nentries;
 	}
       else
 	return false;
-     
+
       return true;
+    }
+
+
+    int th_bin(float theta){
+      int th=-1;
+
+      if(theta>17.5 && theta<22.5) th=0;//theta=20+/-2.5 deg, Dtheta= 5 deg
+      else if(theta>=22.5 && theta<27.5) th=1;
+      else if(theta>=27.5 && theta<32.5) th=2;
+      else if(theta>=32.5 && theta<37.5) th=3;
+      else if(theta>=37.5 && theta<42.5) th=4;
+      else if(theta>=42.5 && theta<47.5) th=5;
+      else if(theta>=47.5 && theta<52.5) th=6;
+      else if(theta>=52.5 && theta<57.5) th=7;
+      else if(theta>=57.5 && theta<62.5) th=8;
+      else if(theta>=62.5 && theta<67.5) th=9;
+      else if(theta>=67.5 && theta<72.5) th=10;
+      else if(theta>=72.5 && theta<77.5) th=11;
+      else if(theta>=77.5 && theta<82.5) th=12;
+
+      return th;
     }
 
 
@@ -115,7 +136,7 @@ Int_t   nentries;
 
 Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 {
-	    
+
 
 	    if (!loop->setInput(""))
 	      {                                                    // reading file structure
@@ -128,17 +149,17 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    TStopwatch timer;
 	    timer.Reset();
 	    timer.Start();
-	    
 
 
-	    loop->printCategories(); 
+
+	    loop->printCategories();
 
 	    HCategory* pGeantCat = (HCategory*)gHades->getCurrentEvent()->getCategory(catGeantKine);
 
 	    HIterator* pitGeant = (HIterator *)pGeantCat->MakeIterator();
 
 
-	    //GeantKine idealne czastki z modelu	    
+	    //GeantKine idealne czastki z modelu
     HCategory * fCatGeantKine = nullptr;
     fCatGeantKine = HCategoryManager::getCategory(catGeantKine, kTRUE, "catGeantKine");
     if (!fCatGeantKine)
@@ -147,7 +168,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
         //exit(EXIT_FAILURE);  // do you want a brute force exit ?
     }
 
-    
+
 
     //particleCatSim kandydaci, po przefiltrowaniu przez detektor
     HCategory * particleCatSim= nullptr;
@@ -172,10 +193,10 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
       {
 	cout<< "No catRpcHit!"<<endl;
       }
-    
 
-    
-    
+
+
+
     //************************** HISTOS ********************
 
     TH2F *hBetavsMom=new TH2F("betavsMom","betavsMom; p*q [GeV]; beta",500,-1.4,1.4,500,0,1.5);
@@ -194,7 +215,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TH2F* hvertReco_yz = new TH2F("hvertReco_yz", "hvertReco_yz;y;z", 1000, -50, 50, 1500, -100, 50);
     TH1F* htrMult = new TH1F("htrMult","htrMult",15,0,15);
 
- 
+
     TH2F *hp_BetavsMom=new TH2F("p_betavsMom","p_betavsMom; p [GeV]; beta",200,0,1.4,200,0,1.2);
     TH2F *hd_BetavsMom=new TH2F("d_betavsMom","d_betavsMom; p [GeV]; beta",200,0,1.4,200,0,1.2);
     TH2F *hpip_BetavsMom=new TH2F("pip_betavsMom","pip_betavsMom; p [GeV]; beta",200,0,1.4,200,0,1.2);
@@ -210,7 +231,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TH1F* hd_tof = new TH1F("d_tof","d_tof",100,0,100);
     TH1F* hpip_tof = new TH1F("pip_tof","pip_tof",100,0,100);
     TH1F* hpim_tof = new TH1F("pim_tof","pim_tof",100,0,100);
-   
+
 
     //_4pi dla idealnych czastek, przed detektorem
     TH2F *hp_ThetavsMom_4pi=new TH2F("p_thetavsMom_4pi","p_thetavsMom_4pi;p [GeV];theta",200,0,1.4,200,0,200);
@@ -220,7 +241,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 
     //************************************************
     //************************************************
-     
+
     TH1F* hp_theta = new TH1F("p_theta","p_theta;theta;",90,0,180);
     TH1F* hp_theta_4pi = new TH1F("p_theta_4pi","p_theta_4pi;theta;",90,0,180);
     TH1F* hd_theta = new TH1F("d_theta", "d_theta;theta;", 90, 0, 180);
@@ -241,8 +262,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TH1F* hpip_y_4pi_crop = new TH1F("pip_y_4pi_crop", "pip_y_4pi_crop;y;", 100, 0., 2.);
     TH1F* hpim_y = new TH1F("pim_y", "pim_y;y;", 100, 0., 2.);
     TH1F* hpim_y_4pi = new TH1F("pim_y_4pi", "pim_y_4pi;y;", 100, -2., 3.);
-    TH1F* hpim_y_4pi_crop = new TH1F("pim_y_4pi_crop", "pim_y_4pi_crop;y;", 100, 0., 2.); 
-    
+    TH1F* hpim_y_4pi_crop = new TH1F("pim_y_4pi_crop", "pim_y_4pi_crop;y;", 100, 0., 2.);
+
     TH1F* hp_pt = new TH1F("p_pt", "p_pt;pt [GeV/c];", 75, 0., 1.5);
     TH1F* hp_pt_4pi = new TH1F("p_pt_4pi", "p_pt_4pi;pt [GeV/c];", 75, 0, 1.5);
     TH1F* hd_pt = new TH1F("d_pt", "d_pt;pt [GeV/c];", 75, 0., 1.5);
@@ -269,7 +290,36 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TH1F* hpip_p_4pi = new TH1F("pip_p_4pi", "pip_p_4pi; p [GeV];", 70, 0., 0.7);
     TH1F* hpim_p = new TH1F("pim_p", "pim_p; p [GeV];", 130, 0., 1.3);
     TH1F* hpim_p_4pi = new TH1F("pim_p_4pi", "pim_p_4pi; p [GeV];", 130, 0., 1.3);
-    
+
+
+    TH1F* hpim_enth[13];
+    TH1F* hpip_enth[13];
+    TH1F* hp_enth[13];
+    TH1F* hd_enth[13];
+    char name[200];
+    char name2[200];
+
+    for (int i=0;i<13;i++){
+
+      int k=20+i*5;
+      sprintf(name,"hpim_enth_%d",k);
+      sprintf(name2, "hpim_enth_%d;T [GeV];", k);
+      hpim_enth[i]= new TH1F(name, name2,160,0,0.8);;
+
+      sprintf(name,"hpip_enth_%d",k);
+      sprintf(name2, "hpip_enth_%d;T [GeV];", k);
+      hpip_enth[i]= new TH1F(name,name2,160,0,0.8);;
+
+      sprintf(name,"hp_enth_%d",k);
+      sprintf(name2, "hp_enth_%d;T [GeV];", k);
+      hp_enth[i]= new TH1F(name,name2,160,0,0.8);;
+
+      sprintf(name,"hd_enth_%d",k);
+      sprintf(name2, "hd_enth_%d;T [GeV];", k);
+      hd_enth[i]= new TH1F(name,name2,160,0,0.8);;
+
+    }
+
     //***************************************************************
     //********************************************
 
@@ -279,14 +329,14 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
    TLorentzVector *proj;
    proj = new TLorentzVector(0,0,pion_momentum, pion_energy);
    //TLorentzVector proj(0,0,pion_momentum, pion_energy);
-    
+
 
     //-------TARGET
    TLorentzVector *targ;
    targ = new TLorentzVector(0,0,0, 938.27231);
     //TLorentzVector targ(0,0,0, 938.27231);
 
-    
+
     //--------------   BEAM+TARGET
     TLorentzVector *beam;
     beam = new TLorentzVector(0,0,0,0);
@@ -299,18 +349,18 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     if (anapars.events < entries and anapars.events >= 0 ) entries = anapars.events;
 
 
-    
+
     TFile * output_file = TFile::Open(anapars.outfile, "RECREATE");
     output_file->cd();
-    
+
     cout << "NEW ROOT TREE , vertex_ana" << endl;
     Int_t evnb;
-    
+
  //  if (fChain == 0) return;
 
     HTofHit *tof = nullptr;
     HRpcHit *rpc = nullptr;
-    
+
 
     vector<HParticleCandSim*> prot, pim,pip;
     vector<HGeantKine*> protKine, pimKine, pipKine;
@@ -331,16 +381,14 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     TLorentzVector*  d_LAB = new TLorentzVector(0, 0, 0, 0);
     int charTr=0;
 
-    int count1 = 0;
-    int count2 = 0;
-    
-    for (Long_t event=0; event<entries; event++) 
+
+    for (Long_t event=0; event<entries; event++)
     {
       charTr=0;
-      loop->nextEvent(event); 
+      loop->nextEvent(event);
       if(!(event%10000))   cout<<"event no. "<<event<<endl;
 
-    
+
       evnb=event;
       //fChain->GetEntry(event);
       //cout<< eventNum<<endl;
@@ -348,24 +396,24 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
       int tof_ev=tofHit->getEntries();
       int rpc_ev=rpcHit->getEntries();
 
-      prot.clear();    
+      prot.clear();
       pim.clear();
       pip.clear();
-      protKine.clear();    
+      protKine.clear();
       pimKine.clear();
       pipKine.clear();
 
 
-      
+
 	int hnum=particleCatSim->getEntries();
 	int knum=fCatGeantKine->getEntries();
 
 	HParticleCandSim* partH=nullptr;
 	HGeantKine* kine=nullptr;
-	
+
 
 	HParticleTool tool;
-	
+
 	HGeomVector vertexL;
 	HGeomVector vertexDL;
 	HGeomVector vertexL1520;
@@ -373,9 +421,9 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	HGeomVector dirDL;
 	HGeomVector dirL1520,dirL1520_1;
 
-	
+
 	HGeomVector base_Tg, dir_Tg;
-			  
+
 	base_Tg.setX(0);
 	base_Tg.setY(0);
 	base_Tg.setZ(-25.);
@@ -422,39 +470,36 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 
 	//cout<<hnum<<" "<<trigM2<<endl;
 	//if(hnum && trigM2>=2) cout<<"ok"<<endl;
-       
-	//if(hnum) count1++;
-	//if(hnum && trigM2>=2) count2++;
-	
-	//****************************************	
+
+
+	//****************************************
 	if (hnum){//without M2 trigger
 	//if (hnum && trigM2>=2){ //with M2
-	  
+
           //HADES
 	  //##############################
 	  for (int i=0;i<hnum;i++){
 
-	    
+
 	  partH=HCategoryManager::getObject(partH, particleCatSim,i);
 
 
 	  //cout<<i<<"  "<<partH->getSystem()<<" "<<partH->getChi2()<<" "<<partH->getInnerSegmentChi2()<<endl;
 	  float nerbyFit=0;
 	  float nerbyUnFit=0;
-	  
-	  //nerbyFit=fabs(partH->getAngleToNearbyFittedInner())*TMath::RadToDeg(); 
-	  //nerbyUnFit=fabs(partH->getAngleToNearbyUnfittedInner())*TMath::RadToDeg(); 
-	  nerbyFit=fabs(partH->getAngleToNearbyFittedInner()); 
-	  nerbyUnFit=fabs(partH->getAngleToNearbyUnfittedInner()); 
+
+	  //nerbyFit=fabs(partH->getAngleToNearbyFittedInner())*TMath::RadToDeg();
+	  //nerbyUnFit=fabs(partH->getAngleToNearbyUnfittedInner())*TMath::RadToDeg();
+	  nerbyFit=fabs(partH->getAngleToNearbyFittedInner());
+	  nerbyUnFit=fabs(partH->getAngleToNearbyUnfittedInner());
 
 
 	  //if(partH->isFlagBit(kIsUsed) && partH->getGeantParentTrackNum()==0 && partH->getGeantGrandParentPID()==-1){
 	  //if(partH->isFlagBit(kIsUsed) && partH->getGeantParentTrackNum()==0 && partH->getGeantParentPID()==-1){
 
 	  //cout<<partH->getGeantPID()<<endl;
-	  if(partH->isFlagBit(kIsUsed) ){//wybiera dobrze zrekonstruowane trajektorie
+	  if(partH->isFlagBit(kIsUsed) ){//wybiera dobrze zrekonstruowane trajektorie, przechodza tylko M2trig >= 1
 
-	    // cout<<"FlagBit: "<<hnum<<" "<<trigM2<<endl;
 
 	    double mom=partH->getMomentum();
 	    double beta=partH->getBeta();
@@ -464,8 +509,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    double theta = partH->getTheta();
 	    double y=partH->Rapidity();
 	    double pt=partH->Pt();
-	    
-	    
+
+
 	    double tracklength = partH->getDistanceToMetaHit();
 	    HVertex& vertexreco = gHades->getCurrentEvent()->getHeader()->getVertexReco();
 	    double eVertReco_x=vertexreco.getX();
@@ -476,7 +521,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    double eVert_x=vertex.getX();
 	    double eVert_y=vertex.getY();
 	    double eVert_z=vertex.getZ();
-	    
+
 
 	    hvertReco_z->Fill(eVertReco_z);
 	    hvert_z->Fill(eVert_z);
@@ -487,27 +532,26 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    hvertReco_xy->Fill(eVertReco_x, eVertReco_y);
 	    hvertReco_xz->Fill(eVertReco_x, eVertReco_z);
 	    hvertReco_yz->Fill(eVertReco_y, eVertReco_z);
-	    
+
 	    hBetavsMom->Fill(mom*q/1000,beta);
 	    hmass->Fill(mass);
 	    htof->Fill(tof);
 	    hmomvsMass->Fill(mom/1000,mass);
 	    hmomvsMass1->Fill(mom*q/1000,mass);
-	    
-
-	    if(eVertReco_z>-500){
-
-	      //cout<<"Vertex: "<<hnum<<" "<<trigM2<<endl;
 
 
-	    if(partH->getCharge()!=0)charTr++; ;  
+	    if(eVertReco_z>-500){ //dobrze zrekonstruowane trajektorie (punkt reakcji musi byc w obrebie tarczy) przechodza tylko hnum>=2 M2trig>=2
+
+
+
+	    if(partH->getCharge()!=0)charTr++; ;
 
 	    //cout<<i<<"  "<<partH->getSystem()<<" "<<partH->getChi2()<<" "<<partH->getInnerSegmentChi2()<<endl;
 
 	    //14 = proton
 	    if(partH->getGeantPID()==14){
 	      // if(mass > 200000. && mass < 1900000. && mom*q > 0.){
-	
+
 	      partH->calc4vectorProperties(HPhysicsConstants::mass(14));
 	      hp_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
 	      hp_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
@@ -517,11 +561,11 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hp_T->Fill((partH->T()-partH->M())/1000);
 	      hp_p->Fill(partH->getMomentum()/1000);
 
-	      //kinetic energy
-	      // double Ekin=partH->T()-partH->M();
-	      
-	      
-	      //cout<<i<<" :::: "<<partH->Rapidity()<<endl;
+	      float ekin=(partH->T()-partH->M())/1000.;
+	      int thbin=th_bin(theta);
+	      if(thbin>-1)hp_enth[thbin]->Fill(ekin);
+
+
 	    }
 
 	    //45 = deuteron
@@ -536,10 +580,9 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hd_T->Fill((partH->T()-partH->M())/1000);
 	      hd_p->Fill(partH->getMomentum()/1000);
 
-	      //cout<<i<<" :::: "<<partH->T()<<endl;
-	      //cout<<i<<" :::: "<<partH->Energy()<<endl;
-	      //cout<<i<<" :::: "<<partH->Pt()/1000<<endl;
-	      //cout<<i<<" :::: "<<partH->getMomentum()<<endl;
+	      float ekin=(partH->T()-partH->M())/1000.;
+	      int thbin=th_bin(theta);
+	      if(thbin>-1)hd_enth[thbin]->Fill(ekin);
 	    }
 
 	    //9 = pion-
@@ -553,7 +596,11 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hpim_pt->Fill(partH->Pt()/1000);
 	      hpim_T->Fill((partH->T()-partH->M())/1000);
 	      hpim_p->Fill(partH->getMomentum()/1000);
-	      
+
+	      float ekin=(partH->T()-partH->M())/1000.;
+	      int thbin=th_bin(theta);
+	      if(thbin>-1)hpim_enth[thbin]->Fill(ekin);
+
 	    }
 
 	    //8 = pion+
@@ -567,26 +614,30 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	      hpip_pt->Fill(partH->Pt()/1000);
 	      hpip_T->Fill((partH->T()-partH->M())/1000);
 	      hpip_p->Fill(partH->getMomentum()/1000);
-	      
+
+	      float ekin=(partH->T()-partH->M())/1000.;
+	      int thbin=th_bin(theta);
+	      if(thbin>-1)hpip_enth[thbin]->Fill(ekin);
+
 	    }
 
 
 	  }//eVertReco_z
 	  }//kIsUsed
-	    
+
 	  }
 	}
-	htrMult->Fill(charTr); 
+	htrMult->Fill(charTr);
 
-		
-	//**********************************************************************		
+
+	//**********************************************************************
 	//*************** HGEANT KINE analysis*****************************************
      pitGeant->Reset();
      while((kine = (HGeantKine*)pitGeant->Next()) != 0){
 
        //for(int p=0;p<knum;p++) {
        //kine=HCategoryManager::getObject(kine, fCatGeantKine, p);
-       
+
        kine->getParticle( aTrack, aID );
        kine->getCreator ( aPar, aMed, aMech);
        kine->getGenerator( genInfo, genInfo1, genInfo2);
@@ -603,8 +654,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
        if(aID==14 && aMech==0){//proton from primary vertex
 
 	 vec1.SetXYZ( xMom, yMom, zMom );
-	 p_LAB->SetVectM(vec1, 938.272); 
-	 
+	 p_LAB->SetVectM(vec1, 938.272);
+
 	 hp_ThetavsMom_4pi->Fill(p_LAB->P()/1000,p_LAB->Theta()*TMath::RadToDeg());
 	 hp_theta_4pi->Fill(p_LAB->Theta()*TMath::RadToDeg());
 	 hp_y_4pi->Fill(p_LAB->Rapidity());
@@ -612,14 +663,14 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	 hp_pt_4pi->Fill(p_LAB->Pt()/1000);
 	 hp_T_4pi->Fill((p_LAB->T()-p_LAB->M())/1000);
 	 hp_p_4pi->Fill(p_LAB->P()/1000);
-	 
+
        }
 
        if(aID==9 && aMech==0)//pion-
 	 {
 	   vec2.SetXYZ( xMom, yMom, zMom );
-	   pim_LAB->SetVectM(vec2, 139.56995); 
-	   
+	   pim_LAB->SetVectM(vec2, 139.56995);
+
 	   hpim_ThetavsMom_4pi->Fill(pim_LAB->P()/1000,pim_LAB->Theta()*TMath::RadToDeg());
 	   hpim_theta_4pi->Fill(pim_LAB->Theta()*TMath::RadToDeg());
 	   hpim_y_4pi->Fill(pim_LAB->Rapidity());
@@ -627,7 +678,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	   hpim_pt_4pi->Fill(pim_LAB->Pt()/1000);
 	   hpim_T_4pi->Fill((pim_LAB->T()-pim_LAB->M())/1000);
 	   hpim_p_4pi->Fill(pim_LAB->P()/1000);
-	   
+
 	   //kine->getVertex(lambdaVertex);
 	   //h2IIpions->Fill(kine->getTotalMomentum(),kine->getThetaDeg());
 		//hEIZpionSim->Fill(lambdaVertex.getZ());
@@ -635,8 +686,8 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 
        if(aID==8 && aMech==0){//pion+ from primary vertex
 	 vec3.SetXYZ( xMom, yMom, zMom );
-	 pip_LAB->SetVectM(vec3, 139.56995); 
-	 
+	 pip_LAB->SetVectM(vec3, 139.56995);
+
 	 hpip_ThetavsMom_4pi->Fill(pip_LAB->P()/1000,pip_LAB->Theta()*TMath::RadToDeg());
 	 hpip_theta_4pi->Fill(pip_LAB->Theta()*TMath::RadToDeg());
 	 hpip_y_4pi->Fill(pip_LAB->Rapidity());
@@ -647,7 +698,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 
        }
 
-       if(aID==45 && aMech==0)//deuteron 
+       if(aID==45 && aMech==0)//deuteron
 	 {
 	   vec4.SetXYZ(xMom, yMom, zMom);
 	   d_LAB->SetVectM(vec4, 1875.612943);
@@ -660,15 +711,15 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	   hd_T_4pi->Fill((d_LAB->T()-d_LAB->M())/1000);
 	   hd_p_4pi->Fill(d_LAB->P()/1000);
 	 }
-	    
+
 	    //if(kineID==14 && kine->getThetaDeg()<6.5)h2FDsimProtons->Fill(kine->getTotalMomentum(),kine->getThetaDeg());
     }
 
 
-    
+
 
 	//******************************************************end kine
-     
+
     }
 
     htrMult->Write();
@@ -685,7 +736,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     hvertReco_xy->Write();
     hvertReco_xz->Write();
     hvertReco_yz->Write();
-    
+
 
 
     hp_ThetavsMom->Write();
@@ -764,15 +815,14 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
     hpip_p_4pi->Write();
     hpim_p_4pi->Write();
 
-    //cout<<"hnum: "<<count1<<endl;
-    //cout<<"hnum && M2: "<<count2<<endl;
+    for (int i=0;i<13;i++){
+
+      hpim_enth[i]->Write();
+      hpip_enth[i]->Write();
+      hp_enth[i]->Write();
+      hd_enth[i]->Write();
+
+   }
+
+
 }
-
-    
-
-
-      
-
-
-
-
