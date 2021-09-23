@@ -45,6 +45,8 @@ using namespace std;
 
 Int_t   nentries;
 
+const double D2R = 1.74532925199432955e-02;
+const double R2D = 57.2957795130823229;
 
 
     double trackDistance(HParticleCand* track1, HParticleCand*  track2)
@@ -194,7 +196,33 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	cout<< "No catRpcHit!"<<endl;
       }
 
+    //*******************************************************
+    HEnergyLossCorrPar enLossCorr;
+    enLossCorr.setDefaultPar("aug14_C7"); // "jul14_W" - Wolfram target, "jul14_C3" - Carbon 3 segments, "jul14_PE" & "aug14_PE" - PE target, "au\g14_C7" - Carbon 7 segments  
+    //******************************************************
+    TFile *cutFile = new TFile("./cuts_pimC_690.root");
 
+    //cuts mom in MeV
+    TCutG* cutg_pim_mass2Mom= (TCutG*)cutFile->Get("cutg_pim_mass2Mom");
+    TCutG* cutg_pip_mass2Mom= (TCutG*)cutFile->Get("cutg_pip_mass2Mom");
+    TCutG* cutg_p_mass2Mom= (TCutG*)cutFile->Get("cutg_p_mass2Mom");
+    TCutG* cutg_d_mass2Mom= (TCutG*)cutFile->Get("cutg_d_mass2Mom");
+
+    TCutG* cutg_pim_betaMom= (TCutG*)cutFile->Get("cutg_pim_betaMom");
+    TCutG* cutg_pip_betaMom= (TCutG*)cutFile->Get("cutg_pip_betaMom");
+    TCutG* cutg_p_betaMom= (TCutG*)cutFile->Get("cutg_p_betaMom");
+    TCutG* cutg_d_betaMom= (TCutG*)cutFile->Get("cutg_d_betaMom");
+
+    //same cuts but mom in GeV
+    TCutG* cutg_pim_mass2Mom1= (TCutG*)cutFile->Get("cutg_pim_mass2Mom1");
+    TCutG* cutg_pip_mass2Mom1= (TCutG*)cutFile->Get("cutg_pip_mass2Mom1");
+    TCutG* cutg_p_mass2Mom1= (TCutG*)cutFile->Get("cutg_p_mass2Mom1");
+    TCutG* cutg_d_mass2Mom1= (TCutG*)cutFile->Get("cutg_d_mass2Mom1");
+
+    TCutG* cutg_pim_betaMom1= (TCutG*)cutFile->Get("cutg_pim_betaMom1");
+    TCutG* cutg_pip_betaMom1= (TCutG*)cutFile->Get("cutg_pip_betaMom1");
+    TCutG* cutg_p_betaMom1= (TCutG*)cutFile->Get("cutg_p_betaMom1");
+    TCutG* cutg_d_betaMom1= (TCutG*)cutFile->Get("cutg_d_betaMom1");
 
 
     //************************** HISTOS ********************
@@ -507,6 +535,7 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    double mass = mom*mom * (  1. / (beta*beta)  - 1. ) ;
 	    double tof=partH->getTof();
 	    double theta = partH->getTheta();
+	    double phi = partH->getPhi();
 	    double y=partH->Rapidity();
 	    double pt=partH->Pt();
 
@@ -549,75 +578,136 @@ Int_t fwdet_tests(HLoop * loop, const AnaParameters & anapars)
 	    //cout<<i<<"  "<<partH->getSystem()<<" "<<partH->getChi2()<<" "<<partH->getInnerSegmentChi2()<<endl;
 
 	    //14 = proton
-	    if(partH->getGeantPID()==14){
-	      // if(mass > 200000. && mass < 1900000. && mom*q > 0.){
+	    //if(partH->getGeantPID()==14){
+	    //if(mass > 200000. && mass < 2200000. && mom*q > 0.){
+	    //if(partH->getGeantPID()==14 && mass > 100000. && mass < 2200000. && mom*q >0.){
+	    //if(cutg_p_mass2Mom->IsInside(mom*q,mass)){
+	      if(cutg_p_betaMom->IsInside(mom*q,beta)){
 
+	      float mom_corr=partH->getCorrectedMomentumPID(14);
 	      partH->calc4vectorProperties(HPhysicsConstants::mass(14));
-	      hp_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
-	      hp_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
+	      hp_ThetavsMom->Fill(mom_corr/1000,partH->getTheta());
+	      hp_BetavsMom->Fill(mom_corr/1000,partH->getBeta());
 	      hp_theta->Fill(partH->getTheta());
-	      hp_y->Fill(partH->Rapidity());
-	      hp_pt->Fill(partH->Pt()/1000);
-	      hp_T->Fill((partH->T()-partH->M())/1000);
-	      hp_p->Fill(partH->getMomentum()/1000);
+	      //hp_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
+	      //hp_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
+	      //hp_T->Fill((partH->T()-partH->M())/1000);
+	      //hp_y->Fill(partH->Rapidity());
+	      //hp_pt->Fill(partH->Pt()/1000);
+	      //hp_p->Fill(partH->getMomentum()/1000);
+	      hp_p->Fill(mom_corr/1000);
 
-	      float ekin=(partH->T()-partH->M())/1000.;
+	      TLorentzVector p_corr1;
+	      p_corr1.SetXYZM(mom_corr*sin(D2R*theta)*cos(D2R*phi),mom_corr*sin(D2R*theta)*sin(D2R*phi),mom_corr*cos(D2R*theta),partH->M());
+	      hp_pt->Fill(p_corr1.Pt()/1000);
+	      hp_y->Fill(p_corr1.Rapidity());
+	      
+	      float ekin=sqrt(mom_corr*mom_corr+partH->M()*partH->M())-partH->M();
+	      hp_T->Fill(ekin/1000);
+	      
 	      int thbin=th_bin(theta);
-	      if(thbin>-1)hp_enth[thbin]->Fill(ekin);
+	      if(thbin>-1)hp_enth[thbin]->Fill(ekin/1000.);
 
 
 	    }
 
 	    //45 = deuteron
-	    if(partH->getGeantPID()==45){
-	      //if(mass > 1900000. && mass < 6100000. && mom*q > 0.){
-	      partH->calc4vectorProperties(HPhysicsConstants::mass(45));
-	      hd_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
-	      hd_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
-	      hd_theta->Fill(partH->getTheta());
-	      hd_y->Fill(partH->Rapidity());
-	      hd_pt->Fill(partH->Pt()/1000);
-	      hd_T->Fill((partH->T()-partH->M())/1000);
-	      hd_p->Fill(partH->getMomentum()/1000);
+	    //if(partH->getGeantPID()==45){
+	    //if(mass > 2200000. && mass < 6100000. && mom*q > 0.){
+	    //if(partH->getGeantPID()==45 && mass > 2200000. && mass < 6100000. && mom*q > 0.){
+	      //if(cutg_d_mass2Mom->IsInside(mom*q, mass)){
+	      if(cutg_d_betaMom->IsInside(mom*q, beta)){
+	      
+	      float mom_corr=partH->getCorrectedMomentumPID(45);
 
-	      float ekin=(partH->T()-partH->M())/1000.;
+	      partH->calc4vectorProperties(HPhysicsConstants::mass(45));
+	      //hd_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
+	      //hd_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
+	      hd_ThetavsMom->Fill(mom_corr/1000,partH->getTheta());
+	      hd_BetavsMom->Fill(mom_corr/1000,partH->getBeta());
+	      hd_theta->Fill(partH->getTheta());
+	      //hd_y->Fill(partH->Rapidity());
+	      //hd_pt->Fill(partH->Pt()/1000);
+	      //hd_T->Fill((partH->T()-partH->M())/1000);
+	      //hd_p->Fill(partH->getMomentum()/1000);
+	      hd_p->Fill(mom_corr/1000);
+
+	      TLorentzVector p_corr1;
+	      p_corr1.SetXYZM(mom_corr*sin(D2R*theta)*cos(D2R*phi),mom_corr*sin(D2R*theta)*sin(D2R*phi),mom_corr*cos(D2R*theta),partH->M());
+
+	      hd_pt->Fill(p_corr1.Pt()/1000);
+	      hd_y->Fill(p_corr1.Rapidity());
+	      
+	      float ekin=sqrt(mom_corr*mom_corr+partH->M()*partH->M())-partH->M();
+	      hd_T->Fill(ekin/1000);
 	      int thbin=th_bin(theta);
-	      if(thbin>-1)hd_enth[thbin]->Fill(ekin);
+	      if(thbin>-1)hd_enth[thbin]->Fill(ekin/1000.);
 	    }
 
 	    //9 = pion-
-	    if(partH->getGeantPID()==9){
-	      //if(mass > -20000. && mass < 60000. && mom*q < 0.){
-	      partH->calc4vectorProperties(HPhysicsConstants::mass(9));
-	      hpim_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
-	      hpim_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
-	      hpim_theta->Fill(partH->getTheta());
-	      hpim_y->Fill(partH->Rapidity());
-	      hpim_pt->Fill(partH->Pt()/1000);
-	      hpim_T->Fill((partH->T()-partH->M())/1000);
-	      hpim_p->Fill(partH->getMomentum()/1000);
+	    //if(partH->getGeantPID()==9){
+	    //if(mass > -20000. && mass < 50000. && mom*q < 0.){
+	    //if(partH->getGeantPID()==9 && mass > -20000. && mass < 50000. && mom*q < 0.){
+	      //if(cutg_pim_mass2Mom->IsInside(mom*q, mass)){
+	    if(cutg_pim_betaMom->IsInside(mom*q, beta)){
+	      
+	      float mom_corr=partH->getCorrectedMomentumPID(9);
 
-	      float ekin=(partH->T()-partH->M())/1000.;
+	      partH->calc4vectorProperties(HPhysicsConstants::mass(9));
+	      //hpim_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
+	      //hpim_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
+	      hpim_ThetavsMom->Fill(mom_corr/1000,partH->getTheta());
+	      hpim_BetavsMom->Fill(mom_corr/1000,partH->getBeta());
+	      hpim_theta->Fill(partH->getTheta());
+	      //hpim_y->Fill(partH->Rapidity());
+	      //hpim_pt->Fill(partH->Pt()/1000);
+	      //hpim_T->Fill((partH->T()-partH->M())/1000);
+	      //hpim_p->Fill(partH->getMomentum()/1000);
+	      hpim_p->Fill(mom_corr/1000);
+
+	      TLorentzVector p_corr1;
+	      p_corr1.SetXYZM(mom_corr*sin(D2R*theta)*cos(D2R*phi),mom_corr*sin(D2R*theta)*sin(D2R*phi),mom_corr*cos(D2R*theta),partH->M());
+	      hpim_pt->Fill(p_corr1.Pt()/1000);
+	      hpim_y->Fill(p_corr1.Rapidity());
+	      
+	      float ekin=sqrt(mom_corr*mom_corr+partH->M()*partH->M())-partH->M();
+	      hpim_T->Fill(ekin/1000);
 	      int thbin=th_bin(theta);
-	      if(thbin>-1)hpim_enth[thbin]->Fill(ekin);
+	      if(thbin>-1)hpim_enth[thbin]->Fill(ekin/1000.);
 
 	    }
 
 	    //8 = pion+
-	    if(partH->getGeantPID()==8){
-	    //if(mass > -20000. && mass < 34000. && mom*q > 0.){
-	      partH->calc4vectorProperties(HPhysicsConstants::mass(8));
-	      hpip_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
-	      hpip_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
-	      hpip_theta->Fill(partH->getTheta());
-	      hpip_y->Fill(partH->Rapidity());
-	      hpip_pt->Fill(partH->Pt()/1000);
-	      hpip_T->Fill((partH->T()-partH->M())/1000);
-	      hpip_p->Fill(partH->getMomentum()/1000);
+	    //if(partH->getGeantPID()==8){
+	    //if(mass > 10000. && mass < 70000. && mom*q > 0.){
+	    //if(partH->getGeantPID()==8 && mass > 10000. && mass < 70000. && mom*q > 0.){
+	    //if(cutg_pip_mass2Mom->IsInside(mom*q, mass)){
+	    if(cutg_pip_betaMom->IsInside(mom*q, beta)){
 
-	      float ekin=(partH->T()-partH->M())/1000.;
+	      
+	      float mom_corr=partH->getCorrectedMomentumPID(8);
+	      partH->calc4vectorProperties(HPhysicsConstants::mass(8));
+	      //hpip_ThetavsMom->Fill(partH->getMomentum()/1000,partH->getTheta());
+	      //hpip_BetavsMom->Fill(partH->getMomentum()/1000,partH->getBeta());
+	      //hpip_y->Fill(partH->Rapidity());
+	      //hpip_pt->Fill(partH->Pt()/1000);
+	      //hpip_T->Fill((partH->T()-partH->M())/1000);
+
+	      hpip_theta->Fill(partH->getTheta());
+	      hpip_ThetavsMom->Fill(mom_corr/1000,partH->getTheta());
+	      hpip_BetavsMom->Fill(mom_corr/1000,partH->getBeta());
+	      //hpip_p->Fill(partH->getMomentum()/1000);
+	      hpip_p->Fill(mom_corr/1000);
+
+	      TLorentzVector p_corr1;
+	      p_corr1.SetXYZM(mom_corr*sin(D2R*theta)*cos(D2R*phi),mom_corr*sin(D2R*theta)*sin(D2R*phi),mom_corr*cos(D2R*theta),partH->M());
+	      hpip_pt->Fill(p_corr1.Pt()/1000);
+	      hpip_y->Fill(p_corr1.Rapidity());
+	      
+	      float ekin=sqrt(mom_corr*mom_corr+partH->M()*partH->M())-partH->M();
+	      hpip_T->Fill(ekin/1000);
 	      int thbin=th_bin(theta);
-	      if(thbin>-1)hpip_enth[thbin]->Fill(ekin);
+	      if(thbin>-1)hpip_enth[thbin]->Fill(ekin/1000);
 
 	    }
 
